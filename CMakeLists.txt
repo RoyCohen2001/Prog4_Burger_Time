@@ -43,6 +43,18 @@ if(NOT glm_FOUND)
     DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
   )
   FetchContent_MakeAvailable(glm)
+  
+  # glm is header-only and doesn't always create targets, so create them manually
+  if(NOT TARGET glm::glm)
+    if(TARGET glm)
+      add_library(glm::glm ALIAS glm)
+    else()
+      # Create the target from scratch - headers are in glm/glm subdirectory
+      add_library(glm INTERFACE)
+      target_include_directories(glm INTERFACE "${glm_SOURCE_DIR}/glm")
+      add_library(glm::glm ALIAS glm)
+    endif()
+  endif()
 endif()
 
 # Add SDL3
