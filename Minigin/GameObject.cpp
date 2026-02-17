@@ -1,24 +1,42 @@
-#include <string>
 #include "GameObject.h"
-#include "ResourceManager.h"
+#include "Component.h"
 #include "Renderer.h"
+#include "ResourceManager.h"
+#include "Texture2D.h"
 
-dae::GameObject::~GameObject() = default;
-
-void dae::GameObject::Update(){}
-
-void dae::GameObject::Render() const
+namespace dae
 {
-	const auto& pos = m_transform.GetPosition();
-	Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
-}
+	void GameObject::Update(float deltaTime)
+	{
+		for (const auto& component : m_components)
+		{
+			component->Update(deltaTime);
+		}
+	}
 
-void dae::GameObject::SetTexture(const std::string& filename)
-{
-	m_texture = ResourceManager::GetInstance().LoadTexture(filename);
-}
+	void GameObject::Render() const
+	{
+		if (m_texture != nullptr)
+		{
+			const auto& pos = m_transform.GetPosition();
+			Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
+		}
 
-void dae::GameObject::SetPosition(float x, float y)
-{
-	m_transform.SetPosition(x, y, 0.0f);
+		for (const auto& component : m_components)
+		{
+			component->Render();
+		}
+	}
+
+	void GameObject::SetTexture(const std::string& filename)
+	{
+		m_texture = ResourceManager::GetInstance().LoadTexture(filename);
+	}
+
+	void GameObject::SetPosition(float x, float y)
+	{
+		m_transform.SetPosition(x, y, 0.0f);
+	}
+
+	GameObject::~GameObject() = default;
 }
