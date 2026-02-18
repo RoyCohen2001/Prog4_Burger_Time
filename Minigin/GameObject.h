@@ -9,18 +9,17 @@
 namespace dae
 {
 	class Texture2D;
-	class GameObject
+	class GameObject final
 	{
 		Transform m_transform{};
-		std::shared_ptr<Texture2D> m_texture{};
 		std::vector<std::unique_ptr<Component>> m_components{};
 
 	public:
 		virtual void Update();
-		virtual void Render() const;
+		void Render() const;
 
-		void SetTexture(const std::string& filename);
 		void SetPosition(float x, float y);
+		const Transform& GetTransform() const { return m_transform; }
 
 		GameObject() = default;
 		virtual ~GameObject();
@@ -29,13 +28,12 @@ namespace dae
 		GameObject& operator=(const GameObject& other) = delete;
 		GameObject& operator=(GameObject&& other) = delete;
 
-		template <typename ComponentType, typename Arg>
-		ComponentType* AddComponent(Arg& arg)
+		template <typename ComponentType, typename... Args>
+		ComponentType* AddComponent(Args&&... args)
 		{
-			std::unique_ptr<ComponentType> component{ std::make_unique<ComponentType>(this, arg) };
+			std::unique_ptr<ComponentType> component{ std::make_unique<ComponentType>(this, std::forward<Args>(args)...) };
 			ComponentType* ptr{ component.get() };
 			m_components.push_back(std::move(component));
-
 			return ptr;
 		}
 

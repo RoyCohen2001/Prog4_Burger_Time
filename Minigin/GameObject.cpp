@@ -19,21 +19,10 @@ namespace dae
 
 	void GameObject::Render() const
 	{
-		if (m_texture != nullptr)
-		{
-			const auto& pos = m_transform.GetPosition();
-			Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y);
-		}
-
 		for (const auto& component : m_components)
 		{
 			component->Render();
 		}
-	}
-
-	void GameObject::SetTexture(const std::string& filename)
-	{
-		m_texture = ResourceManager::GetInstance().LoadTexture(filename);
 	}
 
 	void GameObject::SetPosition(float x, float y)
