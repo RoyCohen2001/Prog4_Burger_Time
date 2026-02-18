@@ -92,22 +92,11 @@ void dae::Minigin::Run(const std::function<void()>& load)
 {
 	load();
 #ifndef __EMSCRIPTEN__
-	constexpr int ms_per_frame = 16;
 
-	auto lastTime = std::chrono::high_resolution_clock::now();
+	m_time.SetLastTime();
 
 	while (!m_quit) {
-		const auto currentTime = std::chrono::high_resolution_clock::now();
-		const float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
-		
-		lastTime = currentTime;
-
-		m_quit = !InputManager::GetInstance().ProcessInput();
-		SceneManager::GetInstance().Update(deltaTime);
-		Renderer::GetInstance().Render();
-
-		const auto sleep_time = currentTime + std::chrono::milliseconds(ms_per_frame) - std::chrono::high_resolution_clock::now();
-		std::this_thread::sleep_for(sleep_time);
+		RunOneFrame();
 	}
 #else
 	emscripten_set_main_loop_arg(&LoopCallback, this, 0, true);
@@ -116,7 +105,14 @@ void dae::Minigin::Run(const std::function<void()>& load)
 
 void dae::Minigin::RunOneFrame()
 {
+	m_time.SetCurrentTime();
+	m_time.CalculateDeltaTime();
+	m_time.SetLastTime();
+
 	m_quit = !InputManager::GetInstance().ProcessInput();
-	//SceneManager::GetInstance().Update();
+	SceneManager::GetInstance().Update();
 	Renderer::GetInstance().Render();
+
+	std::this_thread::sleep_for(m_time.GetSleepTime());
+
 }

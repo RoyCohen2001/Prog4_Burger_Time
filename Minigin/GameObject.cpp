@@ -6,12 +6,15 @@
 
 namespace dae
 {
-	void GameObject::Update(float deltaTime)
+	void GameObject::Update()
 	{
 		for (const auto& component : m_components)
 		{
-			component->Update(deltaTime);
+			component->Update();
 		}
+
+	   ProcessComponentRemoval();
+		
 	}
 
 	void GameObject::Render() const

@@ -10,6 +10,7 @@
 #include "ResourceManager.h"
 #include "TextObject.h"
 #include "Scene.h"
+#include "FPSComponent.h"
 
 #include <filesystem>
 namespace fs = std::filesystem;
@@ -32,6 +33,12 @@ static void load()
 	to->SetColor({ 255, 255, 0, 255 });
 	to->SetPosition(292, 20);
 	scene.Add(std::move(to));
+
+	// Add FPS counter
+	auto fpsObject = std::make_unique<dae::GameObject>();
+	fpsObject->SetPosition(10.f, 10.f);
+	fpsObject->AddComponent<dae::FPSComponent>(fpsObject);
+	scene.Add(std::move(fpsObject));
 }
 
 int main(int, char*[]) {
