@@ -3,6 +3,7 @@
 #include <memory>
 #include "Component.h"
 #include <SDL3/SDL.h>
+#include "RenderComponent.h"
 
 namespace dae
 {
@@ -22,7 +23,6 @@ namespace dae
 		TextComponent& operator=(TextComponent&& other) = delete;
 
 		void Update() override;
-		void Render() const override;
 
 		void SetText(const std::string& text);
 		void SetColor(const SDL_Color& color);
@@ -32,6 +32,6 @@ namespace dae
 		std::string m_text;
 		SDL_Color m_color{ 255, 255, 255, 255 };
 		std::shared_ptr<Font> m_font;
-		std::shared_ptr<Texture2D> m_textTexture;
+		RenderComponent* m_renderComponent;
 	};
 }

@@ -12,7 +12,7 @@ namespace dae
 		void Update() override;
 
 	private:
-		int static constexpr MAX_SAMPLES{};
+		int static constexpr MAX_SAMPLES = 50;
 		float m_frames{};
 		float m_fps{};
 		float m_accumulatedTime{};

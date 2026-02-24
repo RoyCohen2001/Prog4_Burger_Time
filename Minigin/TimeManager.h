@@ -9,13 +9,23 @@ namespace dae
 	class TimeManager final : public Singleton<TimeManager>
 	{
 	public:
-		void SetCurrentTime() { m_currentTime = high_resolution_clock::now(); }
+		void Initialize() { 
+			SetCurrentTime();
+			CalculateDeltaTime();
+			SetLastTime();
+		}
+		
 		void SetLastTime() { m_lastTime = m_currentTime; }
 
-		void CalculateDeltaTime() { m_deltaTime = duration<float>(m_currentTime - m_lastTime).count(); }
-
 		float GetDeltaTime() const { return m_deltaTime; }
-		nanoseconds GetSleepTime() const { return m_currentTime + m_msPerFrame - high_resolution_clock::now(); }
+		nanoseconds GetSleepTime() const
+		{
+			const auto target = m_currentTime + m_msPerFrame;
+			const auto now = high_resolution_clock::now();
+			if (now >= target)
+				return nanoseconds{ 0 };
+			return target - now;
+		}
 		
 		void SetTargetFPS(int fps)
 		{
@@ -23,10 +33,13 @@ namespace dae
 				m_msPerFrame = milliseconds(1000 / fps);
 		}
 	private:
+		void SetCurrentTime() { m_currentTime = high_resolution_clock::now(); }
+		void CalculateDeltaTime() { m_deltaTime = duration<float>(m_currentTime - m_lastTime).count(); }
+
 		high_resolution_clock::time_point m_lastTime{};
 		high_resolution_clock::time_point m_currentTime{};
-		milliseconds m_msPerFrame{};
+		milliseconds m_msPerFrame{16};
 
-		float m_deltaTime{16};
+		float m_deltaTime{};
 	};
 }

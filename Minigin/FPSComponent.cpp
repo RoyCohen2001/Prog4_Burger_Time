@@ -2,7 +2,7 @@
 #include "GameObject.h"
 #include "TextComponent.h"
 #include "TimeManager.h"
-#include <numeric>
+#include "ResourceManager.h"
 
 dae::FPSComponent::FPSComponent(GameObject* owner)
 	: Component(owner),
@@ -12,7 +12,8 @@ dae::FPSComponent::FPSComponent(GameObject* owner)
 	m_updateInterval(0.5f),
 	m_timeSinceLastUpdate(0.0f)
 {
-	m_textComponent = owner->GetComponent<TextComponent>();
+	auto font = dae::ResourceManager::GetInstance().LoadFont("Lingua.otf", 36);
+	m_textComponent = owner->AddComponent<TextComponent>("50", font);
 }
 
 void dae::FPSComponent::Update()

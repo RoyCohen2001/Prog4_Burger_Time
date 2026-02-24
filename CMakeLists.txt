@@ -28,14 +28,14 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   "Minigin/Texture2D.cpp"
   "Minigin/Transform.cpp"
   "Minigin/FPSComponent.cpp" 
-  "Minigin/RenderComponent.cpp")
+  "Minigin/RenderComponent.cpp" "Minigin/MovementComponent.cpp")
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
 
 include(FetchContent)
 # add glm
-find_package(glm CONFIG QUIET)
+find_package(glm CONFIG)
 if(NOT glm_FOUND)
   FetchContent_Declare(
     glm
@@ -44,7 +44,7 @@ if(NOT glm_FOUND)
     DOWNLOAD_DIR ${CMAKE_BINARY_DIR}/downloads
   )
   FetchContent_MakeAvailable(glm)
-  
+
   # glm is header-only and doesn't always create targets, so create them manually
   if(NOT TARGET glm::glm)
     if(TARGET glm)

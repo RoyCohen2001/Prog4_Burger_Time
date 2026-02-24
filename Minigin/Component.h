@@ -6,10 +6,11 @@ namespace dae
 
 	class Component
 	{
-	public:
-		Component(GameObject* pOwner) : m_pOwner(pOwner) {}
-		GameObject* GetOwner() const { return m_pOwner; }
+	private:
+		GameObject* m_pOwner;
+		bool m_delete{ false };
 
+	public:
 		virtual void Update() {}
 		virtual void Render() const {}
 
@@ -23,8 +24,7 @@ namespace dae
 		Component& operator=(Component&& other) = delete;
 
 	protected:
-		GameObject* m_pOwner;
-
-		bool m_delete{ false };
+		Component(GameObject* pOwner) : m_pOwner(pOwner) {}
+		GameObject* GetOwner() const { return m_pOwner; }
 	};
 }
