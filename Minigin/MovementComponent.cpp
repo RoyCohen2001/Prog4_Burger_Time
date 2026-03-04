@@ -41,19 +41,14 @@ namespace dae
         const float x = m_center.x + m_radius * glm::cos(m_angle);
         const float y = m_center.y + m_radius * glm::sin(m_angle);
 
+        // kan niet in emscripten
         std::ostringstream oss;
         oss << " angle=" << m_angle
             << " pos=(" << x << ", " << y << ")\n";
         OutputDebugStringA(oss.str().c_str());
 
-        if (GetOwner()->GetParent() != nullptr)
-        {
-            GetOwner()->SetLocalPosition(glm::vec3{ x, y, 0.0f });
-        }
-        else
-        {
-            GetOwner()->SetPosition(x, y);
-        }
+        GetOwner()->SetLocalPosition(glm::vec3{ x, y, 0.0f });
+   
 	}
 
 	void MovementComponent::Move(const glm::vec2& direction)

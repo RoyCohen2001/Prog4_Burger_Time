@@ -21,6 +21,7 @@ namespace dae
 		//Dirty Flag
 		glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f };
 		glm::vec3 m_worldPosition{ 0.0f, 0.0f, 0.0f };
+		
 		bool m_positionIsDirty{ true };
 
 		void UpdateWorldPosition();
