@@ -71,7 +71,7 @@ namespace ttc {
            {
                auto start = std::chrono::high_resolution_clock::now();
 
-               for (int i = 0; i < m_BufferSize; i += step)
+               for (size_t i = 0; i < m_BufferSize; i += step)
                {
                    buffer[i].id *= 2;
                }
