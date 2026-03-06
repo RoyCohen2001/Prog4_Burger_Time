@@ -57,14 +57,14 @@ static void load()
 	// PARENT
 	auto player = std::make_unique<dae::GameObject>();
 	player->SetPosition(SCREEN_WIDTH/2, SCREEN_HEIGHT - SCREEN_HEIGHT/3);
-	player->AddComponent<dae::RenderComponent>("peter.png");
+	player->AddComponent<dae::RenderComponent>("Sprites/PeterPepper/peter.png");
 	player->AddComponent<dae::MovementComponent>(5.f,50.0f);
 	auto playerPtr = player.get();
 	scene.Add(std::move(player));
 
 	// CHILD
 	auto satellite = std::make_unique<dae::GameObject>();
-	satellite->AddComponent<dae::RenderComponent>("peter.png");
+	satellite->AddComponent<dae::RenderComponent>("Sprites/PeterPepper/peter.png");
 	satellite->AddComponent<dae::MovementComponent>(-10.0f, 30.0f);
 	auto satellitePtr = satellite.get();
 	scene.Add(std::move(satellite));

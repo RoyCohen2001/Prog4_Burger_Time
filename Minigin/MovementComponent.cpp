@@ -5,8 +5,10 @@
 #include <glm/gtc/constants.hpp> 
 #include <glm/common.hpp>         
 
+#ifndef __EMSCRIPTEN__
 #include <Windows.h>
 #include <sstream>
+#endif
 
 namespace dae
 {
@@ -41,11 +43,12 @@ namespace dae
         const float x = m_center.x + m_radius * glm::cos(m_angle);
         const float y = m_center.y + m_radius * glm::sin(m_angle);
 
-        // kan niet in emscripten
+        #ifndef __EMSCRIPTEN__
         std::ostringstream oss;
         oss << " angle=" << m_angle
             << " pos=(" << x << ", " << y << ")\n";
         OutputDebugStringA(oss.str().c_str());
+        #endif
 
         GetOwner()->SetLocalPosition(glm::vec3{ x, y, 0.0f });
    
