@@ -1,2 +1,2 @@
-const int SCREEN_WIDTH = 1024;
-const int SCREEN_HEIGHT = 576;
+const int SCREEN_WIDTH = 600;
+const int SCREEN_HEIGHT = 800;

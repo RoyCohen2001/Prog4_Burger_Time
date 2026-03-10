@@ -12,6 +12,7 @@ namespace dae
 	{
 	public:
 		Scene& CreateScene();
+		Scene& GetActiveScene() const { return *m_scenes.back(); }
 
 		void Update();
 		void Render();

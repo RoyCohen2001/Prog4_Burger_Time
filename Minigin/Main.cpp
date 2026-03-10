@@ -12,6 +12,9 @@
 #include "Util.h"
 #include "InputManager.h"
 
+//Game loading
+#include "LevelLoader.h"	
+
 //components
 #include "TextComponent.h"
 #include "FPSComponent.h"
@@ -43,38 +46,27 @@ void SetInputMappingKeyboard(dae::GameActor* actor)
 
 static void load()
 {
+	
+
 	// FONT
 	const auto MAIN_FONT = dae::ResourceManager::GetInstance().LoadFont("BurgerTime.otf", 36);
 
 	auto& scene = dae::SceneManager::GetInstance().CreateScene();
 
-	auto go = std::make_unique<dae::GameObject>();
-	go->AddComponent<dae::RenderComponent>("background.png");
-	scene.Add(std::move(go));
-
-	go = std::make_unique<dae::GameObject>();
-	go->SetPosition(358, 180);
-	go->AddComponent<dae::RenderComponent>("logo.png");
-	scene.Add(std::move(go));
-
-	auto textObject = std::make_unique<dae::GameObject>();
-	textObject->SetPosition(292, 20);
-	auto textComponent = textObject->AddComponent<dae::TextComponent>("Programming 4 Assignment", MAIN_FONT);
-	textComponent->SetColor({ 255, 255, 0, 255 });
-	scene.Add(std::move(textObject));
+	dae::LevelLoader::LoadLevelFromJson("Data/Levels/level1.json", scene, glm::vec2{-50, 50});
 
 	auto textPlayer1 = std::make_unique<dae::GameObject>();
-	textPlayer1->SetPosition(20, 120);
+	textPlayer1->SetPosition(100, 10);
 	auto textComponent1 = textPlayer1->AddComponent<dae::TextComponent>("Use the d-pad to move player 1", MAIN_FONT);
 	textComponent1->SetSize(18);
-	textComponent1->SetColor({ 255, 255, 255, 255 });
+	textComponent1->SetColor({ 255, 0, 0, 255 });
 	scene.Add(std::move(textPlayer1));
 
 	auto textPlayer2 = std::make_unique<dae::GameObject>();
-	textPlayer2->SetPosition(20, 150);
+	textPlayer2->SetPosition(100, 40);
 	auto textComponent2 = textPlayer2->AddComponent<dae::TextComponent>("Use WASD to move player 2", MAIN_FONT);
 	textComponent2->SetSize(18);
-	textComponent2->SetColor({ 255, 255, 255, 255 });
+	textComponent2->SetColor({ 255, 0, 0, 255 });
 	scene.Add(std::move(textPlayer2));
 
 	// Add FPS counter

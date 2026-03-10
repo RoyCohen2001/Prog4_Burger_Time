@@ -32,7 +32,7 @@ add_executable(${TARGET_NAME} ${TARGET_PARAM}
   "Minigin/MovementComponent.cpp" 
   "Minigin/ImGuiComponent.cpp" 
   "Minigin/Gamepad.cpp" 
-  "Minigin/GameActor.cpp")
+  "Minigin/GameActor.cpp" "Minigin/LevelLoader.cpp")
 
 # enable c++20 features
 target_compile_features(${TARGET_NAME} PUBLIC cxx_std_20)
@@ -121,6 +121,14 @@ if(NOT SDL3_ttf_FOUND)
   endif()
 endif()
 
+FetchContent_Declare(
+  json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.11.2
+)
+FetchContent_MakeAvailable(json)
+
+
 # Dear ImGui
 FetchContent_Declare(
   imgui
@@ -169,6 +177,7 @@ target_link_libraries("${TARGET_NAME}" PUBLIC
   glm::glm
   imgui
   xinput
+  nlohmann_json::nlohmann_json
   ${VLD_LIBRARIES}
 )
 
