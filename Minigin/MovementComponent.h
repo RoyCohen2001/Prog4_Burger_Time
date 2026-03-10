@@ -11,6 +11,9 @@ namespace dae
 
 		void Update() override;
 		void Move(const glm::vec2& direction);
+		void Stop() { m_velocity = glm::vec2{ 0.0f, 0.0f }; }
+
+		void GoInCircles();
 
 		void SetSpeed(float speed) { m_speed = speed; }
 		float GetSpeed() const { return m_speed; }

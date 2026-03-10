@@ -24,6 +24,7 @@ namespace dae
 
 		void Update() override;
 
+		void SetSize(const unsigned int size);
 		void SetText(const std::string& text);
 		void SetColor(const SDL_Color& color);
 

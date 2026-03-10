@@ -43,3 +43,9 @@ void dae::TextComponent::SetColor(const SDL_Color& color)
 	m_color = color;
 	m_needsUpdate = true;
 }
+
+void dae::TextComponent::SetSize(const unsigned int size)
+{
+	m_font = m_font->SetSize(size);
+	m_needsUpdate = true;
+}

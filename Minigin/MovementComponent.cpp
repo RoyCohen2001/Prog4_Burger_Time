@@ -19,6 +19,23 @@ namespace dae
 
 	void MovementComponent::Update()
 	{
+        if (m_velocity != glm::vec2{ 0.0f, 0.0f })
+        {
+            const float dt = TimeManager::GetInstance().GetDeltaTime();
+            const glm::vec3 deltaPos = glm::vec3(m_velocity * m_speed * dt, 0.0f);
+            auto localPos = GetOwner()->GetTransform().GetLocalPosition();
+            GetOwner()->SetLocalPosition(localPos + deltaPos);
+			Stop();
+        }
+	}
+
+	void MovementComponent::Move(const glm::vec2& direction)
+	{
+		m_velocity = direction;
+	}
+
+    void MovementComponent::GoInCircles()
+    {
         const float dt = TimeManager::GetInstance().GetDeltaTime();
 
         // Update angle
@@ -38,19 +55,13 @@ namespace dae
         const float x = m_radius * glm::cos(m_angle);
         const float y = m_radius * glm::sin(m_angle);
 
-        #ifndef __EMSCRIPTEN__
+#ifndef __EMSCRIPTEN__
         std::ostringstream oss;
         oss << " angle=" << m_angle
             << " pos=(" << x << ", " << y << ")\n";
         OutputDebugStringA(oss.str().c_str());
-        #endif
+#endif
 
         GetOwner()->SetLocalPosition(glm::vec3{ x, y, 0.0f });
-   
-	}
-
-	void MovementComponent::Move(const glm::vec2& direction)
-	{
-		m_velocity = direction;
-	}
+    }
 }
