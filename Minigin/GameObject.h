@@ -18,16 +18,10 @@ namespace dae
 		Transform m_transform{};
 		std::vector<std::unique_ptr<Component>> m_components{};
 
-		//Dirty Flag
-		glm::vec3 m_localPosition{ 0.0f, 0.0f, 0.0f };
-		glm::vec3 m_worldPosition{ 0.0f, 0.0f, 0.0f };
-		
-		bool m_positionIsDirty{ true };
-
-		void UpdateWorldPosition();
 		void SetPositionDirty();
-
 		bool IsChild(const GameObject* potentialChild) const;
+		void AddChild(GameObject* child);
+		void RemoveChild(GameObject* child);
 
 	public:
 		void Update();

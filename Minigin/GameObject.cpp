@@ -10,7 +10,7 @@ namespace dae
 			component->Update();
 		}
 		ProcessComponentRemoval();
-		GetWorldPosition(); 
+		GetWorldPosition();
 	}
 
 	void GameObject::Render() const
@@ -23,8 +23,7 @@ namespace dae
 
 	void GameObject::SetPosition(float x, float y)
 	{
-		m_transform.SetPosition(x, y, 0.0f);
-		m_localPosition = glm::vec3{ x, y, 0.0f };
+		m_transform.SetLocalPosition(glm::vec3{ x, y, 0.0f });
 		SetPositionDirty();
 	}
 
@@ -34,49 +33,57 @@ namespace dae
 	{
 		if (IsChild(parent) || parent == this || m_parent == parent)
 			return;
-		if (parent == nullptr) {
+
+		if (parent == nullptr)
+		{
 			SetLocalPosition(GetWorldPosition());
+			m_transform.SetParent(nullptr);
 		}
 		else
 		{
-			if (keepWorldPosition) {
+			if (keepWorldPosition)
 				SetLocalPosition(GetWorldPosition() - parent->GetWorldPosition());
-			}
+
+			m_transform.SetParent(&parent->m_transform);
 			SetPositionDirty();
 		}
 
-		m_parent = parent; 
+		// Not clear to me?
+		if (m_parent) {
+			m_parent->RemoveChild(this);
+		}
+
+		m_parent = parent;
+
+		if (m_parent) {
+			m_parent->AddChild(this);
+		}
 	}
 
+	void GameObject::AddChild(GameObject* child)
+	{
+		m_children.push_back(child);
+	}
+
+	void GameObject::RemoveChild(GameObject* child)
+	{
+		m_children.erase(std::remove(m_children.begin(), m_children.end(), child), m_children.end());
+	}
 
 	void GameObject::SetLocalPosition(const glm::vec3& pos)
 	{
-		m_localPosition = pos;
+		m_transform.SetLocalPosition(pos);
 		SetPositionDirty();
 	}
 
-	glm::vec3 GameObject::GetWorldPosition() 
+	glm::vec3 GameObject::GetWorldPosition()
 	{
-		if (m_positionIsDirty) {
-			UpdateWorldPosition();
-		}
-		return m_worldPosition;
+		return m_transform.GetWorldPosition();
 	}
 
-	void GameObject::UpdateWorldPosition()
-	{
-		if (m_positionIsDirty)
-		{
-			if (m_parent == nullptr)
-				m_worldPosition = m_localPosition;
-			else
-				m_worldPosition = m_parent->GetWorldPosition() + m_localPosition;
-		}
-		m_positionIsDirty = false;
-	}
 	void GameObject::SetPositionDirty()
 	{
-		m_positionIsDirty = true;
+		m_transform.SetPositionDirty();
 		for (auto* child : m_children)
 		{
 			child->SetPositionDirty();

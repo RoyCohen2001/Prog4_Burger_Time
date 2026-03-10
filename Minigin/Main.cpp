@@ -11,8 +11,6 @@
 #include "Scene.h"
 #include "Util.h"
 
-#include "ThrashTheCache.h"
-
 //components
 #include "TextComponent.h"
 #include "FPSComponent.h"
