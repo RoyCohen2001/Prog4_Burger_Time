@@ -15,7 +15,6 @@ namespace dae
 		void SetSpeed(float speed) { m_speed = speed; }
 		float GetSpeed() const { return m_speed; }
 		void SetRadius(float radius) { m_radius = radius; }
-		void SetOrbitCenter(const glm::vec2& center) { m_center = center; }
 
 	private:
 		float m_speed;
@@ -24,6 +23,5 @@ namespace dae
 		// Circular motion
 		float m_angle{ 0.0f };
 		float m_radius;
-		glm::vec2 m_center{ 0.0f, 0.0f }; // Relative center (0,0 for children orbiting parent)
 	};
 }

@@ -15,11 +15,6 @@ namespace dae
 	MovementComponent::MovementComponent(GameObject* owner, float speed, float radius)
 		: Component(owner), m_speed(speed), m_radius(radius)
 	{
-		if (GetOwner()->GetParent() == nullptr)
-        {
-            auto worldPos = GetOwner()->GetWorldPosition();
-            m_center = glm::vec2{ worldPos.x, worldPos.y };
-        }
 	}
 
 	void MovementComponent::Update()
@@ -40,8 +35,8 @@ namespace dae
                 m_angle += twoPi;
         }
 
-        const float x = m_center.x + m_radius * glm::cos(m_angle);
-        const float y = m_center.y + m_radius * glm::sin(m_angle);
+        const float x = m_radius * glm::cos(m_angle);
+        const float y = m_radius * glm::sin(m_angle);
 
         #ifndef __EMSCRIPTEN__
         std::ostringstream oss;
