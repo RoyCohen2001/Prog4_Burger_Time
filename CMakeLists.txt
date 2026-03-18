@@ -121,8 +121,21 @@ if(NOT SDL3_ttf_FOUND)
   endif()
 endif()
 
-FetchContent_Declare(json URL https://github.com/nlohmann/json/releases/download/v3.12.0/json.tar.xz)
-FetchContent_MakeAvailable(json)
+# nlohmann/json
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
+
+FetchContent_Declare(
+  nlohmann_json
+  GIT_REPOSITORY https://github.com/nlohmann/json.git
+  GIT_TAG v3.12.0
+  GIT_SHALLOW TRUE
+)
+FetchContent_MakeAvailable(nlohmann_json)
+
+# Safety alias (in case only non-namespaced target exists)
+if(NOT TARGET nlohmann_json::nlohmann_json AND TARGET nlohmann_json)
+  add_library(nlohmann_json::nlohmann_json ALIAS nlohmann_json)
+endif()
 
 
 # Dear ImGui
