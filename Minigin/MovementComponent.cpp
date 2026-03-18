@@ -5,11 +5,6 @@
 #include <glm/gtc/constants.hpp> 
 #include <glm/common.hpp>         
 
-#ifndef __EMSCRIPTEN__
-#include <Windows.h>
-#include <sstream>
-#endif
-
 namespace dae
 {
 	MovementComponent::MovementComponent(GameObject* owner, float speed, float radius)
@@ -54,13 +49,6 @@ namespace dae
 
         const float x = m_radius * glm::cos(m_angle);
         const float y = m_radius * glm::sin(m_angle);
-
-#ifndef __EMSCRIPTEN__
-        std::ostringstream oss;
-        oss << " angle=" << m_angle
-            << " pos=(" << x << ", " << y << ")\n";
-        OutputDebugStringA(oss.str().c_str());
-#endif
 
         GetOwner()->SetLocalPosition(glm::vec3{ x, y, 0.0f });
     }

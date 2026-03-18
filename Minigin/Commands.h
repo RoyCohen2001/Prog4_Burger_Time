@@ -1,6 +1,11 @@
 #pragma once
 #include "GameActor.h"
 
+#ifndef __EMSCRIPTEN__
+#include <Windows.h>
+#include <sstream>
+#endif
+
 
 namespace dae {
 	class Commands
@@ -41,6 +46,32 @@ namespace dae {
 		}
 	private:
 		glm::vec2 m_Direction;
+	};
+
+	class Damage : public GameCommands
+	{
+	public: 
+		Damage(GameActor* actor) :
+			GameCommands(actor)
+		{
+		}
+		void Execute() override
+		{
+			GetGameActor()->OnDeath();
+		}
+	};
+
+	class Pellets : public GameCommands
+	{
+	public:
+		Pellets(GameActor* actor) :
+			GameCommands(actor)
+		{
+		}
+		void Execute() override
+		{
+			GetGameActor()->AddScore(10);
+		}
 	};
 
 }

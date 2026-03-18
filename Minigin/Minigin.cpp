@@ -8,6 +8,13 @@
 #include <windows.h>
 #endif
 
+#if USE_STEAMWORKS
+#pragma warning (push)
+#pragma warning (disable:4996)
+#include <steam_api.h>
+#pragma warning (pop)
+#endif
+
 #include <SDL3/SDL.h>
 //#include <SDL3_image/SDL_image.h>
 #include <SDL3_ttf/SDL_ttf.h>
@@ -110,6 +117,11 @@ void dae::Minigin::RunOneFrame()
 
 	m_quit = !InputManager::GetInstance().ProcessInput();
 	SceneManager::GetInstance().Update();
+
+#if USE_STEAMWORKS
+	SteamAPI_RunCallbacks();
+#endif
+
 	Renderer::GetInstance().Render();
 
 	std::this_thread::sleep_for(m_time.GetSleepTime());

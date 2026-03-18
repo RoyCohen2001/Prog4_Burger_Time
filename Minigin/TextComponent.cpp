@@ -5,11 +5,31 @@
 #include "Font.h"
 #include "Texture2D.h"
 #include "GameObject.h"
+#include "GameActor.h"
 
-dae::TextComponent::TextComponent(GameObject* owner, const std::string& text, std::shared_ptr<Font> font, const SDL_Color& color)
-	: Component(owner), m_needsUpdate(true), m_text(text), m_color(color), m_font(std::move(font))
+dae::TextComponent::TextComponent(GameObject* owner, const std::string& text, std::shared_ptr<Font> font, const SDL_Color& color, DisplayType type)
+	: Component(owner), m_needsUpdate(true), m_text(text), m_color(color), m_font(std::move(font)), m_displayType(type)
 {
 	m_renderComponent = owner->AddComponent<RenderComponent>();
+}
+
+void dae::TextComponent::OnNotify(const std::string& event, GameObject* gameObject)
+{
+	auto actor = dynamic_cast<GameActor*>(gameObject->GetComponent<GameActor>());
+	if (event == "PlayerDied" && m_displayType == DisplayType::Lives)
+	{
+		if (actor)
+		{
+			SetText("Lives: " + std::to_string(actor->GetLives()));
+		}
+	}
+	if (event == "ScoreChanged" && m_displayType == DisplayType::Score)
+	{
+		if (actor)
+		{
+			SetText("Score: " + std::to_string(actor->GetScore()));
+		}
+	}
 }
 
 void dae::TextComponent::Update()

@@ -5,6 +5,10 @@
 #include <vld.h>
 #endif
 
+#if USE_STEAMWORKS
+#include "SteamManager.h"
+#endif
+
 #include "Minigin.h"
 #include "SceneManager.h"
 #include "ResourceManager.h"
@@ -33,6 +37,10 @@ void SetInputMappingController(dae::GameActor* actor, int controller)
 	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_RIGHT, new dae::Move(actor, glm::vec2{ 1, 0 }));
 	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_UP, new dae::Move(actor, glm::vec2{ 0, -1 }));
 	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_DOWN, new dae::Move(actor, glm::vec2{ 0, 1 }));
+
+	// Actions
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::DownThisFrame, dae::Button::X, new dae::Damage(actor));
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::DownThisFrame, dae::Button::B, new dae::Pellets(actor));
 }
 
 void SetInputMappingKeyboard(dae::GameActor* actor)
@@ -42,12 +50,14 @@ void SetInputMappingKeyboard(dae::GameActor* actor)
 	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_D, dae::InputState::Pressed, new dae::Move(actor, glm::vec2{ 1, 0 }));
 	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_W, dae::InputState::Pressed, new dae::Move(actor, glm::vec2{ 0, -1 }));
 	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_S, dae::InputState::Pressed, new dae::Move(actor, glm::vec2{ 0, 1 }));
+
+	// Actions
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_C, dae::InputState::DownThisFrame, new dae::Damage(actor));
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_X, dae::InputState::DownThisFrame, new dae::Pellets(actor));
 }
 
 static void load()
 {
-	
-
 	// FONT
 	const auto MAIN_FONT = dae::ResourceManager::GetInstance().LoadFont("BurgerTime.otf", 36);
 
@@ -56,18 +66,46 @@ static void load()
 	dae::LevelLoader::LoadLevelFromJson("Data/Levels/level1.json", scene, glm::vec2{-50, 50});
 
 	auto textPlayer1 = std::make_unique<dae::GameObject>();
-	textPlayer1->SetPosition(100, 10);
-	auto textComponent1 = textPlayer1->AddComponent<dae::TextComponent>("Use the d-pad to move player 1", MAIN_FONT);
-	textComponent1->SetSize(18);
+	textPlayer1->SetPosition(70, 10);
+	auto textComponent1 = textPlayer1->AddComponent<dae::TextComponent>("Use the d-pad to move player 1 (A - damage) -- (B - pellets)", MAIN_FONT);
+	textComponent1->SetSize(14);
 	textComponent1->SetColor({ 255, 0, 0, 255 });
 	scene.Add(std::move(textPlayer1));
 
+	auto textPLayer1Lives = std::make_unique<dae::GameObject>();
+	textPLayer1Lives->SetPosition(70, 30);
+	auto textlives1 = textPLayer1Lives->AddComponent<dae::TextComponent>("Lives: ", MAIN_FONT);
+	textlives1->SetSize(10);
+	textlives1->SetColor({ 255, 255, 0, 255 });
+	scene.Add(std::move(textPLayer1Lives));
+
+	auto textPLayer1Score = std::make_unique<dae::GameObject>();
+	textPLayer1Score->SetPosition(70, 40);
+	auto textscore1 = textPLayer1Score->AddComponent<dae::TextComponent>("Score: ", MAIN_FONT);
+	textscore1->SetSize(10);
+	textscore1->SetColor({ 255, 255, 0, 255 });
+	scene.Add(std::move(textPLayer1Score));
+
 	auto textPlayer2 = std::make_unique<dae::GameObject>();
-	textPlayer2->SetPosition(100, 40);
-	auto textComponent2 = textPlayer2->AddComponent<dae::TextComponent>("Use WASD to move player 2", MAIN_FONT);
-	textComponent2->SetSize(18);
+	textPlayer2->SetPosition(70, 60);
+	auto textComponent2 = textPlayer2->AddComponent<dae::TextComponent>("Use WASD to move player 2 (C - damage) -- (X - pellets)", MAIN_FONT);
+	textComponent2->SetSize(14);
 	textComponent2->SetColor({ 255, 0, 0, 255 });
 	scene.Add(std::move(textPlayer2));
+
+	auto textPLayer2Lives = std::make_unique<dae::GameObject>();
+	textPLayer2Lives->SetPosition(70, 80);
+	auto textlives2 = textPLayer2Lives->AddComponent<dae::TextComponent>("Lives: ", MAIN_FONT, SDL_Color{ 255,255,0,255 }, dae::TextComponent::DisplayType::Lives);
+	textlives2->SetSize(10);
+	textlives2->SetColor({ 255, 255, 0, 255 });
+	scene.Add(std::move(textPLayer2Lives));
+
+	auto textPLayer2Score = std::make_unique<dae::GameObject>();
+	textPLayer2Score->SetPosition(70, 90);
+	auto textscore2 = textPLayer2Score->AddComponent<dae::TextComponent>("Score: ", MAIN_FONT, SDL_Color{ 255,255,0,255 }, dae::TextComponent::DisplayType::Score);
+	textscore2->SetSize(10);
+	textscore2->SetColor({ 255, 255, 0, 255 });
+	scene.Add(std::move(textPLayer2Score));
 
 	// Add FPS counter
 	auto fpsObject = std::make_unique<dae::GameObject>();
@@ -85,6 +123,9 @@ static void load()
 	player1Actor->SetSpeed(60.f);
 	scene.Add(std::move(player1));
 
+	player1Actor->AddObserver(textlives1);
+	player1Actor->AddObserver(textscore1);
+
 	auto player2 = std::make_unique<dae::GameObject>();
 	player2->SetPosition(200.f, 350.f);
 	auto player2Actor = player2->AddComponent<dae::GameActor>();
@@ -92,36 +133,15 @@ static void load()
 	player2Actor->SetSpeed(120.f);
 	scene.Add(std::move(player2));
 
+	player2Actor->AddObserver(textlives2);
+	player2Actor->AddObserver(textscore2);
+
 	SetInputMappingController(player1Actor, 0);
 	SetInputMappingKeyboard(player2Actor);
 
-	//// ****************************************************************************
-	////							CHILD PARENT EXAMPLE
-	//// ****************************************************************************
-	//// 
-	//// Location 
-	//auto location = std::make_unique<dae::GameObject>();
-	//location->SetPosition(SCREEN_WIDTH / 2, SCREEN_HEIGHT - SCREEN_HEIGHT / 3);
-	//auto locationPtr = location.get();
-	//scene.Add(std::move(location));
-	//
-	//// Player
-	//auto player = std::make_unique<dae::GameObject>();
-	//player->AddComponent<dae::RenderComponent>("Sprites/PeterPepper/peter.png");
-	//player->AddComponent<dae::MovementComponent>(5.f,50.0f);
-	//auto playerPtr = player.get();
-	//scene.Add(std::move(player));
-	//
-	//// Orbiting satellite
-	//auto satellite = std::make_unique<dae::GameObject>();
-	//satellite->AddComponent<dae::RenderComponent>("Sprites/PeterPepper/peter.png");
-	//satellite->AddComponent<dae::MovementComponent>(-10.0f, 30.0f);
-	//auto satellitePtr = satellite.get();
-	//scene.Add(std::move(satellite));
-	//
-	//// Setting parent
-	//playerPtr->SetParent(locationPtr, true); // false = don't keep world position
-	//satellitePtr->SetParent(playerPtr, true); // false = don't keep world position
+#if USE_STEAMWORKS
+	player2Actor->AddObserver(&dae::SteamManager::GetInstance());
+#endif
 }
 
 int main(int, char*[]) {
@@ -132,7 +152,17 @@ int main(int, char*[]) {
 	if(!fs::exists(data_location))
 		data_location = "../Data/";
 #endif
+
+#if USE_STEAMWORKS
+	dae::SteamManager::GetInstance().Initialize();
+#endif
+
 	dae::Minigin engine(data_location);
 	engine.Run(load);
+
+#if USE_STEAMWORKS
+	dae::SteamManager::GetInstance().Shutdown();
+#endif
+
     return 0;
 }
