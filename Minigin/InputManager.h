@@ -1,5 +1,6 @@
 #pragma once
 #include <map>
+#include <array>
 #include "Singleton.h"
 #include "Gamepad.h"
 #include <vector>
@@ -25,8 +26,8 @@ namespace dae
 		bool ProcessInput();
 		void ClearBindings();
 
-		void BindCommandToGamepad(int controllerIdx, InputState state, Button button, Commands* command);
-		void BindCommandToKeyboard(unsigned int key, InputState state, Commands* command);
+		void BindCommandToGamepad(int controllerIdx, InputState state, Button button, std::unique_ptr<Commands> command);
+		void BindCommandToKeyboard(unsigned int key, InputState state, std::unique_ptr<Commands> command);
 
 	private:
 		friend class Singleton<InputManager>;
@@ -39,12 +40,11 @@ namespace dae
 
 		std::vector<std::unique_ptr<Gamepad>> m_pGamepads;
 
-		std::vector<std::map<Button, std::pair<Commands*, InputState>>> m_GamepadCommands;
-		std::vector<std::map<unsigned int, std::pair<Commands*, InputState>>> m_KeyboardCommands;
+		std::array<std::map<Button, std::pair<std::unique_ptr<Commands>, InputState>>, 2> m_GamepadCommands;
+		std::map<unsigned int, std::pair<std::unique_ptr<Commands>, InputState>> m_KeyboardCommands;
 
 		std::vector<bool> m_PrevKeyStates;
 		std::vector<bool> m_CurrKeyStates;
 		int m_NumKeys = 0;
-
 	};
 }

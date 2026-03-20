@@ -2,7 +2,6 @@
 #include <backends/imgui_impl_sdl3.h>
 #include "InputManager.h"
 
-
 namespace dae {
 
 	bool InputManager::ProcessInput()
@@ -17,11 +16,8 @@ namespace dae {
 
 	InputManager::InputManager()
 	{
-
 		m_pGamepads.emplace_back(std::make_unique<Gamepad>(0)); // Player 1
 		m_pGamepads.emplace_back(std::make_unique<Gamepad>(1)); // Player 2
-
-		m_GamepadCommands.resize(2);
 	}
 
 	void InputManager::ClearBindings()
@@ -30,23 +26,17 @@ namespace dae {
 		{
 			gamepadCommands.clear();
 		}
-		if (!m_KeyboardCommands.empty())
-		{
-			m_KeyboardCommands.clear();
-		}
+		m_KeyboardCommands.clear();
 	}
 
-	void InputManager::BindCommandToGamepad(int controllerIdx, InputState state, Button button, Commands* command)
+	void InputManager::BindCommandToGamepad(int controllerIdx, InputState state, Button button, std::unique_ptr<Commands> command)
 	{
-		m_GamepadCommands[controllerIdx][button] = std::make_pair(command, state);
+		m_GamepadCommands[controllerIdx][button] = std::make_pair(std::move(command), state);
 	}
 
-	void InputManager::BindCommandToKeyboard(unsigned int key, InputState state, Commands* command)
+	void InputManager::BindCommandToKeyboard(unsigned int key, InputState state, std::unique_ptr<Commands> command)
 	{
-		if (m_KeyboardCommands.empty())
-			m_KeyboardCommands.resize(1);
-
-		m_KeyboardCommands[0][key] = std::make_pair(command, state);
+		m_KeyboardCommands[key] = std::make_pair(std::move(command), state);
 	}
 
 	bool InputManager::ProcessKeyboardInput()
@@ -62,40 +52,36 @@ namespace dae {
 		m_PrevKeyStates = m_CurrKeyStates;
 		const bool* keystate = SDL_GetKeyboardState(&m_NumKeys);
 		m_CurrKeyStates.assign(keystate, keystate + m_NumKeys);
-		m_PrevKeyStates.resize(m_NumKeys, false); 
+		m_PrevKeyStates.resize(m_NumKeys, false);
 
-		if (!m_KeyboardCommands.empty()) {
-			for (const auto& [key, pair] : m_KeyboardCommands[0]) {
-				if (key >= m_CurrKeyStates.size()) continue; 
+		for (const auto& [key, pair] : m_KeyboardCommands) {
+			if (key >= m_CurrKeyStates.size()) continue;
 
-				Commands* command = pair.first;
-				InputState state = pair.second;
+			Commands* command = pair.first.get();
+			InputState state = pair.second;
 
-				bool execute = false;
-				bool isDown = m_CurrKeyStates[key];
-				bool wasDown = m_PrevKeyStates[key];
+			bool execute = false;
+			bool isDown = m_CurrKeyStates[key];
+			bool wasDown = m_PrevKeyStates[key];
 
-				switch (state) {
-				case InputState::Pressed:
-					execute = isDown;
-					break;
-				case InputState::DownThisFrame:
-					execute = isDown && !wasDown;
-					break;
-				case InputState::UpThisFrame:
-					execute = !isDown && wasDown;
-					break;
-				}
-
-				if (execute && command)
-					command->Execute();
+			switch (state) {
+			case InputState::Pressed:
+				execute = isDown;
+				break;
+			case InputState::DownThisFrame:
+				execute = isDown && !wasDown;
+				break;
+			case InputState::UpThisFrame:
+				execute = !isDown && wasDown;
+				break;
 			}
+
+			if (execute && command)
+				command->Execute();
 		}
 
 		return true;
 	}
-
-
 
 	void InputManager::ProcessControllerInput()
 	{
@@ -104,7 +90,7 @@ namespace dae {
 			m_pGamepads[i]->Update();
 			for (const auto& [button, commandPair] : m_GamepadCommands[i])
 			{
-				Commands* command = commandPair.first;
+				Commands* command = commandPair.first.get();
 				InputState state = commandPair.second;
 
 				bool execute = false;

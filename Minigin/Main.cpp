@@ -25,7 +25,7 @@
 #include "RenderComponent.h"
 #include "MovementComponent.h"
 #include "TimeManager.h"
-#include "ImGuiComponent.h"
+//#include "ImGuiComponent.h"
 #include "GameActor.h"
 
 #include <filesystem>
@@ -33,27 +33,27 @@ namespace fs = std::filesystem;
 void SetInputMappingController(dae::GameActor* actor, int controller)
 {
 	// Movement
-	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_LEFT, new dae::Move(actor, glm::vec2{ -1, 0 }));
-	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_RIGHT, new dae::Move(actor, glm::vec2{ 1, 0 }));
-	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_UP, new dae::Move(actor, glm::vec2{ 0, -1 }));
-	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_DOWN, new dae::Move(actor, glm::vec2{ 0, 1 }));
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_LEFT, std::make_unique<dae::Move>(actor, glm::vec2{ -1, 0 }));
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_RIGHT, std::make_unique<dae::Move>(actor, glm::vec2{ 1, 0 }));
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_UP, std::make_unique<dae::Move>(actor, glm::vec2{ 0, -1 }));
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::Pressed, dae::Button::DPAD_DOWN, std::make_unique<dae::Move>(actor, glm::vec2{ 0, 1 }));
 
 	// Actions
-	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::DownThisFrame, dae::Button::X, new dae::Damage(actor));
-	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::DownThisFrame, dae::Button::B, new dae::Pellets(actor));
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::DownThisFrame, dae::Button::X, std::make_unique<dae::Damage>(actor));
+	dae::InputManager::GetInstance().BindCommandToGamepad(controller, dae::InputState::DownThisFrame, dae::Button::B, std::make_unique<dae::Pellets>(actor));
 }
 
 void SetInputMappingKeyboard(dae::GameActor* actor)
 {
 	// Movement
-	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_A, dae::InputState::Pressed, new dae::Move(actor, glm::vec2{ -1, 0 }));
-	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_D, dae::InputState::Pressed, new dae::Move(actor, glm::vec2{ 1, 0 }));
-	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_W, dae::InputState::Pressed, new dae::Move(actor, glm::vec2{ 0, -1 }));
-	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_S, dae::InputState::Pressed, new dae::Move(actor, glm::vec2{ 0, 1 }));
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_A, dae::InputState::Pressed, std::make_unique<dae::Move>(actor, glm::vec2{ -1, 0 }));
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_D, dae::InputState::Pressed, std::make_unique<dae::Move>(actor, glm::vec2{ 1, 0 }));
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_W, dae::InputState::Pressed, std::make_unique<dae::Move>(actor, glm::vec2{ 0, -1 }));
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_S, dae::InputState::Pressed, std::make_unique<dae::Move>(actor, glm::vec2{ 0, 1 }));
 
 	// Actions
-	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_C, dae::InputState::DownThisFrame, new dae::Damage(actor));
-	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_X, dae::InputState::DownThisFrame, new dae::Pellets(actor));
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_C, dae::InputState::DownThisFrame, std::make_unique<dae::Damage>(actor));
+	dae::InputManager::GetInstance().BindCommandToKeyboard(SDL_SCANCODE_X, dae::InputState::DownThisFrame, std::make_unique<dae::Pellets>(actor));
 }
 
 static void load()

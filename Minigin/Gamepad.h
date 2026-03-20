@@ -1,6 +1,8 @@
 #pragma once
+#ifndef __EMSCRIPTEN__
 #include <windows.h>
 #include <Xinput.h>
+#endif
 #include <memory>
 
 namespace dae
