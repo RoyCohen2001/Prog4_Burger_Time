@@ -1,20 +1,8 @@
 #pragma once
+#include "Commands.h"
 #include "GameActor.h"
 
-#ifndef __EMSCRIPTEN__
-#include <Windows.h>
-#include <sstream>
-#endif
-
-
 namespace dae {
-	class Commands
-	{
-	public:
-		virtual ~Commands() = default;
-		virtual void Execute() = 0;
-	};
-
 	class GameCommands : public Commands
 	{
 		GameActor* m_actor{};
@@ -23,8 +11,7 @@ namespace dae {
 	public:
 		explicit GameCommands(GameActor* actor)
 			: m_actor(actor)
-		{
-		}
+		{}
 	};
 
 	class Move : public GameCommands
@@ -33,8 +20,7 @@ namespace dae {
 		Move(GameActor* actor, const glm::vec2& direction) :
 			GameCommands(actor),
 			m_Direction(direction)
-		{
-		}
+		{}
 
 		void Execute() override
 		{
@@ -46,11 +32,10 @@ namespace dae {
 
 	class Damage : public GameCommands
 	{
-	public: 
+	public:
 		Damage(GameActor* actor) :
 			GameCommands(actor)
-		{
-		}
+		{}
 		void Execute() override
 		{
 			GetGameActor()->OnDeath();
@@ -62,12 +47,11 @@ namespace dae {
 	public:
 		Pellets(GameActor* actor) :
 			GameCommands(actor)
-		{
-		}
+		{}
 		void Execute() override
 		{
 			GetGameActor()->AddScore(10);
 		}
 	};
-
 }
+
