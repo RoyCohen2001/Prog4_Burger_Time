@@ -8,7 +8,7 @@
 #include "FPSComponent.h"
 #include "GameActor.h"
 #include "InputBindings.h"
-
+#include "ServiceLocator.h"
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -27,6 +27,9 @@ std::filesystem::path dae::ResolveDataPath()
 
 void dae::LoadGame()
 {
+	ServiceLocator::GetSoundService().QueueLoad("music", "Data/Sounds/music.wav");
+	ServiceLocator::GetSoundService().QueuePlay("music", 64, true);
+
 	const auto mainFont = ResourceManager::GetInstance().LoadFont("BurgerTime.otf", 36);
 	auto& scene = SceneManager::GetInstance().CreateScene();
 

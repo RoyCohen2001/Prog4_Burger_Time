@@ -12,6 +12,9 @@
 #include "Minigin.h"
 #include "GameLoader.h"
 
+#include "ServiceLocator.h"
+#include "SDLSoundService.h"
+
 int main(int, char* [])
 {
 #if USE_STEAMWORKS
@@ -19,7 +22,13 @@ int main(int, char* [])
 #endif
 
 	dae::Minigin engine(dae::ResolveDataPath());
+
+	dae::SDLSoundService soundService{};
+	dae::ServiceLocator::Provide(&soundService);
+
 	engine.Run(dae::LoadGame);
+
+	dae::ServiceLocator::Provide(nullptr);
 
 #if USE_STEAMWORKS
 	dae::SteamManager::GetInstance().Shutdown();
