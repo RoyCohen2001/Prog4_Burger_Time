@@ -1,12 +1,15 @@
 #include "SceneManager.h"
 #include "Scene.h"
+#include "CollisionSystem.h"
 
 void dae::SceneManager::Update()
 {
-	for(auto& scene : m_scenes)
+	for (auto& scene : m_scenes)
 	{
 		scene->Update();
 	}
+
+	CollisionSystem::Update();
 }
 
 void dae::SceneManager::Render()

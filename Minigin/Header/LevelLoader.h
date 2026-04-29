@@ -1,17 +1,19 @@
 #pragma once
 #include <string>
-#include <vector>
-#include "GameObject.h"
+#include <glm/vec2.hpp>
 
-namespace dae {
+namespace dae
+{
     class Scene;
 
-    class LevelLoader final {
+    class LevelLoader final
+    {
     public:
-        static void LoadLevelFromJson(const std::string& filename, Scene& scene, const glm::vec2& levelOffset = glm::vec2{0,0});
+        static void LoadLevelFromJson(const std::string& filename, Scene& scene, const glm::vec2& levelOffset = glm::vec2{ 0,0 });
 
+        static float GetGroundYAt(float worldX, float currentY);
+        static bool IsOnLadder(float worldX, float worldY);
     private:
         static std::string GetTextureForType(const std::string& type);
-        static std::vector<std::shared_ptr<GameObject>> m_SolidBlocks;
     };
 }

@@ -10,8 +10,119 @@
 #include "InputBindings.h"
 #include "ServiceLocator.h"
 #include <filesystem>
+#include "Util.h"
+
+#if USE_STEAMWORKS
+#include "SteamManager.h"
+#endif
 
 namespace fs = std::filesystem;
+
+namespace
+{
+	struct HudRefs final
+	{
+		dae::TextComponent* p1Lives{};
+		dae::TextComponent* p1Score{};
+		dae::TextComponent* p2Lives{};
+		dae::TextComponent* p2Score{};
+	};
+
+	void TextLoader(dae::Scene& scene, const std::shared_ptr<dae::Font>& mainFont, HudRefs& hudRefs)
+	{
+		int TitleSize = 25;
+		int scoreSize = 20;
+
+		float padding = 40.f;
+
+		// Top row labels (left side)
+		auto oneUpLabel = std::make_unique<dae::GameObject>();
+		oneUpLabel->SetPosition(20.f, 10.f);
+		auto oneUpText = oneUpLabel->AddComponent<dae::TextComponent>("1UP", mainFont);
+		oneUpText->SetSize(TitleSize);
+		oneUpText->SetColor({ 255, 0, 0, 255 });
+		scene.Add(std::move(oneUpLabel));
+
+		auto hiScoreLabel = std::make_unique<dae::GameObject>();
+		hiScoreLabel->SetPosition(110.f, 10.f);
+		auto hiScoreText = hiScoreLabel->AddComponent<dae::TextComponent>("HI-SCORE", mainFont);
+		hiScoreText->SetSize(TitleSize);
+		hiScoreText->SetColor({ 255, 0, 0, 255 });
+		scene.Add(std::move(hiScoreLabel));
+
+		auto pepperLabel = std::make_unique<dae::GameObject>();
+		pepperLabel->SetPosition(SCREEN_WIDTH - 150.f, 10.f);
+		auto pepperText = pepperLabel->AddComponent<dae::TextComponent>("PEPPER", mainFont);
+		pepperText->SetSize(TitleSize);
+		pepperText->SetColor({ 0, 255, 0, 255 });
+		scene.Add(std::move(pepperLabel));
+
+		// Second row values
+		auto oneUpValue = std::make_unique<dae::GameObject>();
+		oneUpValue->SetPosition(20.f, padding);
+		auto oneUpValueText = oneUpValue->AddComponent<dae::TextComponent>("000", mainFont);
+		oneUpValueText->SetSize(scoreSize);
+		oneUpValueText->SetColor({ 255, 255, 0, 255 });
+		scene.Add(std::move(oneUpValue));
+
+		auto hiScoreValue = std::make_unique<dae::GameObject>();
+		hiScoreValue->SetPosition(110.f, padding);
+		auto hiScoreValueText = hiScoreValue->AddComponent<dae::TextComponent>("000", mainFont);
+		hiScoreValueText->SetSize(scoreSize);
+		hiScoreValueText->SetColor({ 255, 255, 0, 255 });
+		scene.Add(std::move(hiScoreValue));
+
+		auto pepperValue = std::make_unique<dae::GameObject>();
+		pepperValue->SetPosition(SCREEN_WIDTH - 150.f, padding);
+		auto pepperValueText = pepperValue->AddComponent<dae::TextComponent>("000", mainFont);
+		pepperValueText->SetSize(scoreSize);
+		pepperValueText->SetColor({ 255, 255, 0, 255 });
+		scene.Add(std::move(pepperValue));
+
+		hudRefs.p1Lives = oneUpValueText;
+		hudRefs.p1Score = oneUpValueText;
+		hudRefs.p2Lives = hiScoreValueText;
+		hudRefs.p2Score = hiScoreValueText;
+
+		//auto fpsObject = std::make_unique<dae::GameObject>();
+		//fpsObject->SetPosition(10.f, 10.f);
+		//fpsObject->AddComponent<dae::FPSComponent>();
+		//scene.Add(std::move(fpsObject));
+	}
+
+	void PlayerLoader(dae::Scene& scene, const HudRefs& hudRefs)
+	{
+		auto player1 = std::make_unique<dae::GameObject>();
+		player1->SetPosition(200.f, 300.f);
+		auto player1Actor = player1->AddComponent<dae::GameActor>();
+		player1Actor->SetTexture("Sprites/PeterPepper/peter.png");
+		
+		player1Actor->SetSpeed(60.f);
+		player1Actor->EnableGravity(true);
+		scene.Add(std::move(player1));
+
+		player1Actor->AddObserver(hudRefs.p1Lives);
+		player1Actor->AddObserver(hudRefs.p1Score);
+
+		auto player2 = std::make_unique<dae::GameObject>();
+		player2->SetPosition(200.f, 350.f);
+		auto player2Actor = player2->AddComponent<dae::GameActor>();
+		player2Actor->SetTexture("Sprites/PeterPepper/peter.png");
+		player2Actor->SetSpeed(120.f);
+		player2Actor->EnableGravity(true);
+		scene.Add(std::move(player2));
+
+		player2Actor->AddObserver(hudRefs.p2Lives);
+		player2Actor->AddObserver(hudRefs.p2Score);
+
+		dae::SetInputMappingController(player1Actor, 0);
+		dae::SetInputMappingKeyboard(player2Actor);
+
+#if USE_STEAMWORKS
+		player2Actor->AddObserver(&dae::SteamManager::GetInstance());
+#endif
+	}
+}
 
 std::filesystem::path dae::ResolveDataPath()
 {
@@ -35,78 +146,7 @@ void dae::LoadGame()
 
 	LevelLoader::LoadLevelFromJson("Data/Levels/level1.json", scene, glm::vec2{ -50, 50 });
 
-	auto textPlayer1 = std::make_unique<GameObject>();
-	textPlayer1->SetPosition(70, 10);
-	auto textComponent1 = textPlayer1->AddComponent<TextComponent>("Use the d-pad to move player 1 (A - damage) -- (B - pellets)", mainFont);
-	textComponent1->SetSize(14);
-	textComponent1->SetColor({ 255, 0, 0, 255 });
-	scene.Add(std::move(textPlayer1));
-
-	auto textPlayer1Lives = std::make_unique<GameObject>();
-	textPlayer1Lives->SetPosition(70, 30);
-	auto textLives1 = textPlayer1Lives->AddComponent<TextComponent>("Lives: ", mainFont);
-	textLives1->SetSize(10);
-	textLives1->SetColor({ 255, 255, 0, 255 });
-	scene.Add(std::move(textPlayer1Lives));
-
-	auto textPlayer1Score = std::make_unique<GameObject>();
-	textPlayer1Score->SetPosition(70, 40);
-	auto textScore1 = textPlayer1Score->AddComponent<TextComponent>("Score: ", mainFont);
-	textScore1->SetSize(10);
-	textScore1->SetColor({ 255, 255, 0, 255 });
-	scene.Add(std::move(textPlayer1Score));
-
-	auto textPlayer2 = std::make_unique<GameObject>();
-	textPlayer2->SetPosition(70, 60);
-	auto textComponent2 = textPlayer2->AddComponent<TextComponent>("Use WASD to move player 2 (C - damage) -- (X - pellets)", mainFont);
-	textComponent2->SetSize(14);
-	textComponent2->SetColor({ 255, 0, 0, 255 });
-	scene.Add(std::move(textPlayer2));
-
-	auto textPlayer2Lives = std::make_unique<GameObject>();
-	textPlayer2Lives->SetPosition(70, 80);
-	auto textLives2 = textPlayer2Lives->AddComponent<TextComponent>("Lives: ", mainFont, SDL_Color{ 255,255,0,255 }, TextComponent::DisplayType::Lives);
-	textLives2->SetSize(10);
-	textLives2->SetColor({ 255, 255, 0, 255 });
-	scene.Add(std::move(textPlayer2Lives));
-
-	auto textPlayer2Score = std::make_unique<GameObject>();
-	textPlayer2Score->SetPosition(70, 90);
-	auto textScore2 = textPlayer2Score->AddComponent<TextComponent>("Score: ", mainFont, SDL_Color{ 255,255,0,255 }, TextComponent::DisplayType::Score);
-	textScore2->SetSize(10);
-	textScore2->SetColor({ 255, 255, 0, 255 });
-	scene.Add(std::move(textPlayer2Score));
-
-	auto fpsObject = std::make_unique<GameObject>();
-	fpsObject->SetPosition(10.f, 10.f);
-	fpsObject->AddComponent<FPSComponent>();
-	scene.Add(std::move(fpsObject));
-
-	auto player1 = std::make_unique<GameObject>();
-	player1->SetPosition(200.f, 300.f);
-	auto player1Actor = player1->AddComponent<GameActor>();
-	player1Actor->SetTexture("Sprites/PeterPepper/peter.png");
-	player1Actor->SetSpeed(60.f);
-	scene.Add(std::move(player1));
-
-	player1Actor->AddObserver(textLives1);
-	player1Actor->AddObserver(textScore1);
-
-	auto player2 = std::make_unique<GameObject>();
-	player2->SetPosition(200.f, 350.f);
-	auto player2Actor = player2->AddComponent<GameActor>();
-	player2Actor->SetTexture("Sprites/PeterPepper/peter.png");
-	player2Actor->SetSpeed(120.f);
-	scene.Add(std::move(player2));
-
-	player2Actor->AddObserver(textLives2);
-	player2Actor->AddObserver(textScore2);
-
-	SetInputMappingController(player1Actor, 0);
-	SetInputMappingKeyboard(player2Actor);
-
-#if USE_STEAMWORKS
-#include "SteamManager.h"
-	player2Actor->AddObserver(&SteamManager::GetInstance());
-#endif
+	HudRefs hudRefs{};
+	TextLoader(scene, mainFont, hudRefs);
+	PlayerLoader(scene, hudRefs);
 }

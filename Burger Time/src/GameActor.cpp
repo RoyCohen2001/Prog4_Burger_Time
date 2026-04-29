@@ -2,10 +2,13 @@
 #include "GameObject.h"
 #include "Observer.h"
 
-dae::GameActor::GameActor(GameObject* owner):
+dae::GameActor::GameActor(GameObject* owner) :
 	Component(owner), m_lives(3), m_score(0)
 {
 	m_renderComponent = owner->AddComponent<RenderComponent>();
+	m_renderComponent->SetScale(2.f);
+
+	m_collisionComponent = owner->AddComponent<CollisionComponent>();
 	m_movementComponent = owner->AddComponent<MovementComponent>();
 }
 
@@ -32,3 +35,5 @@ void dae::GameActor::AddScore(int points)
 	m_score += points;
 	Notify("ScoreChanged", GetOwner());
 }
+
+

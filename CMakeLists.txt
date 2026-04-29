@@ -43,6 +43,8 @@ set(ENGINE_SOURCES
   "${ENGINE_SRC_DIR}/LevelLoader.cpp"
   "${ENGINE_SRC_DIR}/ServiceLocator.cpp"
   "${ENGINE_SRC_DIR}/SDLSoundService.cpp"
+  "${ENGINE_SRC_DIR}/CollisionComponent.cpp"
+  "${ENGINE_SRC_DIR}/CollisionSystem.cpp"
 )
 
 set(GAME_SOURCES

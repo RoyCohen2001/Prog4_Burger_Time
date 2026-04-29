@@ -52,6 +52,8 @@ namespace dae
 			Enqueue({ SoundRequestType::Shutdown });
 			if (m_Worker.joinable()) m_Worker.join();
 
+			CleanupAllTracks();
+
 			for (auto& [_, audio] : m_Sounds) {
 				if (audio) MIX_DestroyAudio(audio);
 			}

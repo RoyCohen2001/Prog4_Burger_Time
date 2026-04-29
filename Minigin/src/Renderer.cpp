@@ -5,6 +5,7 @@
 #include "SceneManager.h"
 #include "Texture2D.h"
 #include "ThrashTheCache.h"
+#include "CollisionSystem.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_sdl3.h>
@@ -50,7 +51,9 @@ void dae::Renderer::Render() const
 	SDL_RenderClear(m_renderer);
 
 	SceneManager::GetInstance().Render();
-
+#if _DEBUG
+	//CollisionSystem::RenderDebug();
+#endif
 	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);
 }
