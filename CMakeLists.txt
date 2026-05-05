@@ -45,6 +45,8 @@ set(ENGINE_SOURCES
   "${ENGINE_SRC_DIR}/SDLSoundService.cpp"
   "${ENGINE_SRC_DIR}/CollisionComponent.cpp"
   "${ENGINE_SRC_DIR}/CollisionSystem.cpp"
+  "${ENGINE_SRC_DIR}/GameStateMachine.cpp"
+  "${ENGINE_SRC_DIR}/GameStateManager.cpp"
 )
 
 set(GAME_SOURCES
@@ -52,8 +54,11 @@ set(GAME_SOURCES
   "${GAME_SRC_DIR}/GameActor.cpp"
   "${GAME_SRC_DIR}/InputBindings.cpp"
   "${GAME_SRC_DIR}/GameLoader.cpp"
-
-
+  "${GAME_SRC_DIR}/MenuState.cpp"
+  "${GAME_SRC_DIR}/SingleplayerState.cpp"
+  "${GAME_SRC_DIR}/CoopState.cpp"
+  "${GAME_SRC_DIR}/VersusState.cpp"
+  "${GAME_SRC_DIR}/HighScoreState.cpp"
 )
 
 add_library(${ENGINE_TARGET} STATIC ${ENGINE_SOURCES})

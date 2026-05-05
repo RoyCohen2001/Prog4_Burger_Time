@@ -14,6 +14,8 @@ namespace dae
 		Scene& CreateScene();
 		Scene& GetActiveScene() const { return *m_scenes.back(); }
 
+		void ClearScenes();
+
 		void Update();
 		void Render();
 	private:

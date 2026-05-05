@@ -6,6 +6,7 @@
 #include "Texture2D.h"
 #include "ThrashTheCache.h"
 #include "CollisionSystem.h"
+#include "GameStateManager.h"
 
 #include <imgui.h>
 #include <backends/imgui_impl_sdl3.h>
@@ -51,6 +52,7 @@ void dae::Renderer::Render() const
 	SDL_RenderClear(m_renderer);
 
 	SceneManager::GetInstance().Render();
+	GameStateManager::GetInstance().Render();
 #if _DEBUG
 	//CollisionSystem::RenderDebug();
 #endif
