@@ -1,22 +1,22 @@
 #include "SingleplayerState.h"
 #include "SceneManager.h"
 #include "Scene.h"
-#include "LevelLoader.h"
 #include "TextComponent.h"
-#include "ResourceManager.h"
 #include "GameActor.h"
 #include "InputBindings.h"
 #include "InputManager.h"
 #include "Util.h"
+#include "HudObservers.h"
+#include "LevelLoader.h"
+#include "ResourceManager.h"
+
 
 namespace
 {
 	struct HudRefs final
 	{
-		dae::TextComponent* p1Lives{};
-		dae::TextComponent* p1Score{};
-		dae::TextComponent* p2Lives{};
-		dae::TextComponent* p2Score{};
+		dae::LivesObserverComponent* p1Lives{};
+		dae::ScoreObserverComponent* p1Score{};
 	};
 
 	void TextLoader(dae::Scene& scene, const std::shared_ptr<dae::Font>& mainFont, HudRefs& hudRefs)
@@ -52,6 +52,7 @@ namespace
 		auto oneUpValueText = oneUpValue->AddComponent<dae::TextComponent>("000", mainFont);
 		oneUpValueText->SetSize(scoreSize);
 		oneUpValueText->SetColor({ 255, 255, 0, 255 });
+		auto LivesObserver = oneUpValue->AddComponent<dae::LivesObserverComponent>(oneUpValueText);
 		scene.Add(std::move(oneUpValue));
 
 		auto hiScoreValue = std::make_unique<dae::GameObject>();
@@ -59,6 +60,7 @@ namespace
 		auto hiScoreValueText = hiScoreValue->AddComponent<dae::TextComponent>("000", mainFont);
 		hiScoreValueText->SetSize(scoreSize);
 		hiScoreValueText->SetColor({ 255, 255, 0, 255 });
+		auto hiScoreScoreObserver = hiScoreValue->AddComponent<dae::ScoreObserverComponent>(hiScoreValueText);
 		scene.Add(std::move(hiScoreValue));
 
 		auto pepperValue = std::make_unique<dae::GameObject>();
@@ -68,16 +70,14 @@ namespace
 		pepperValueText->SetColor({ 255, 255, 0, 255 });
 		scene.Add(std::move(pepperValue));
 
-		hudRefs.p1Lives = oneUpValueText;
-		hudRefs.p1Score = oneUpValueText;
-		hudRefs.p2Lives = hiScoreValueText;
-		hudRefs.p2Score = hiScoreValueText;
+		hudRefs.p1Lives = LivesObserver;
+		hudRefs.p1Score = hiScoreScoreObserver;
 	}
 
 	void PlayerLoader(dae::Scene& scene, const HudRefs& hudRefs)
 	{
 		auto player1 = std::make_unique<dae::GameObject>();
-		player1->SetPosition(SCREEN_WIDTH/2.f, SCREEN_HEIGHT - 160.f);
+		player1->SetPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT - 160.f);
 		auto player1Actor = player1->AddComponent<dae::GameActor>();
 		player1Actor->SetTexture("Sprites/PeterPepper/peter.png");
 

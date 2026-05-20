@@ -1,5 +1,4 @@
 #include "MenuState.h"
-#include <SDL3/SDL.h>
 #include "SceneManager.h"
 #include "Scene.h"
 #include "GameObject.h"

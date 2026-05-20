@@ -59,6 +59,7 @@ set(GAME_SOURCES
   "${GAME_SRC_DIR}/CoopState.cpp"
   "${GAME_SRC_DIR}/VersusState.cpp"
   "${GAME_SRC_DIR}/HighScoreState.cpp"
+  "${GAME_SRC_DIR}/HudObservers.cpp"
 )
 
 add_library(${ENGINE_TARGET} STATIC ${ENGINE_SOURCES})

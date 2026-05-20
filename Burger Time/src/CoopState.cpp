@@ -8,15 +8,22 @@
 #include "InputBindings.h"
 #include "InputManager.h"
 #include "Util.h"
+#include "HudObservers.h"
 
 namespace
 {
 	struct HudRefs final
 	{
-		dae::TextComponent* p1Lives{};
-		dae::TextComponent* p1Score{};
-		dae::TextComponent* p2Lives{};
-		dae::TextComponent* p2Score{};
+		// both
+		dae::ScoreObserverComponent* score{};
+		dae::LivesObserverComponent* lives{};
+
+		// Ammo
+		// player 1
+		//dae::PepperObserverComponent* p1Ammo{};
+
+		// player 2
+		//dae::PepperObserverComponent* p2Ammo{};
 	};
 
 	void TextLoader(dae::Scene& scene, const std::shared_ptr<dae::Font>& mainFont, HudRefs& hudRefs)
@@ -59,6 +66,7 @@ namespace
 		auto oneUpValueText = oneUpValue->AddComponent<dae::TextComponent>("000", mainFont);
 		oneUpValueText->SetSize(scoreSize);
 		oneUpValueText->SetColor({ 255, 255, 0, 255 });
+		auto p1LivesObserver = oneUpValue->AddComponent<dae::LivesObserverComponent>(oneUpValueText);
 		scene.Add(std::move(oneUpValue));
 
 		auto hiScoreValue = std::make_unique<dae::GameObject>();
@@ -66,6 +74,7 @@ namespace
 		auto hiScoreValueText = hiScoreValue->AddComponent<dae::TextComponent>("000", mainFont);
 		hiScoreValueText->SetSize(scoreSize);
 		hiScoreValueText->SetColor({ 255, 255, 0, 255 });
+		auto hiScoreObserver = hiScoreValue->AddComponent<dae::ScoreObserverComponent>(hiScoreValueText);
 		scene.Add(std::move(hiScoreValue));
 
 		auto pepperValueP1 = std::make_unique<dae::GameObject>();
@@ -73,6 +82,7 @@ namespace
 		auto pepperValueTextP1 = pepperValueP1->AddComponent<dae::TextComponent>("000", mainFont);
 		pepperValueTextP1->SetSize(scoreSize);
 		pepperValueTextP1->SetColor({ 255, 255, 0, 255 });
+		// add observer for pepper 2 ammo here
 		scene.Add(std::move(pepperValueP1));
 
 		auto pepperValueP2 = std::make_unique<dae::GameObject>();
@@ -80,12 +90,11 @@ namespace
 		auto pepperValueTextP2 = pepperValueP2->AddComponent<dae::TextComponent>("000", mainFont);
 		pepperValueTextP2->SetSize(scoreSize);
 		pepperValueTextP2->SetColor({ 255, 255, 0, 255 });
+		// add observer for pepper 1 ammo here
 		scene.Add(std::move(pepperValueP2));
 
-		hudRefs.p1Lives = oneUpValueText;
-		hudRefs.p1Score = oneUpValueText;
-		hudRefs.p2Lives = hiScoreValueText;
-		hudRefs.p2Score = hiScoreValueText;
+		hudRefs.lives = p1LivesObserver;
+		hudRefs.score = hiScoreObserver;
 	}
 
 	void PlayerLoader(dae::Scene& scene, const HudRefs& hudRefs)
@@ -101,8 +110,8 @@ namespace
 		player1Actor->EnableGravity(true);
 		scene.Add(std::move(player1));
 
-		player1Actor->AddObserver(hudRefs.p1Lives);
-		player1Actor->AddObserver(hudRefs.p1Score);
+		player1Actor->AddObserver(hudRefs.lives);
+		player1Actor->AddObserver(hudRefs.score);
 
 		auto player2 = std::make_unique<dae::GameObject>();
 		auto* player2Go = player2.get();
@@ -113,8 +122,8 @@ namespace
 		player2Actor->EnableGravity(true);
 		scene.Add(std::move(player2));
 
-		player2Actor->AddObserver(hudRefs.p2Lives);
-		player2Actor->AddObserver(hudRefs.p2Score);
+		player2Actor->AddObserver(hudRefs.lives);
+		player2Actor->AddObserver(hudRefs.score);
 
 		// Indicator for player 1
 		auto p1Indicator = std::make_unique<dae::GameObject>();
