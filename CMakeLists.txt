@@ -40,7 +40,6 @@ set(ENGINE_SOURCES
   "${ENGINE_SRC_DIR}/RenderComponent.cpp"
   "${ENGINE_SRC_DIR}/MovementComponent.cpp"
   "${ENGINE_SRC_DIR}/ImGuiComponent.cpp"
-  "${ENGINE_SRC_DIR}/LevelLoader.cpp"
   "${ENGINE_SRC_DIR}/ServiceLocator.cpp"
   "${ENGINE_SRC_DIR}/SDLSoundService.cpp"
   "${ENGINE_SRC_DIR}/CollisionComponent.cpp"
@@ -62,6 +61,8 @@ set(GAME_SOURCES
   "${GAME_SRC_DIR}/HudObservers.cpp"
   "${GAME_SRC_DIR}/EnemyComponent.cpp"
   "${GAME_SRC_DIR}/PlayerState.cpp"
+  "${GAME_SRC_DIR}/IngredientComponent.cpp"
+  "${GAME_SRC_DIR}/LevelLoader.cpp"
 )
 
 add_library(${ENGINE_TARGET} STATIC ${ENGINE_SOURCES})

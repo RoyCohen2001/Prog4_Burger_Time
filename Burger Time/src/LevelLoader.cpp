@@ -11,6 +11,7 @@
 #include "ResourceManager.h"
 #include "Texture2D.h"
 #include "CollisionComponent.h"
+#include "IngredientComponent.h"
 
 #ifndef __EMSCRIPTEN__
 #include <Windows.h>
@@ -23,12 +24,13 @@ using json = nlohmann::json;
 namespace
 {
     constexpr float kIngredientYOffset = 45.f;
-    constexpr float kIngredientScale = 2.f;
+    constexpr float kIngredientScale = 2.2f;
     constexpr float kLadderProbeMargin = 12.f;
 
     // x, y, w, h
     std::vector<glm::vec4> s_groundRects{};
     std::vector<glm::vec4> s_ladderRects{};
+    std::vector<glm::vec4> s_plateRects{};
 
     bool IsIngredientType(const std::string& type)
     {
@@ -178,10 +180,24 @@ std::string dae::LevelLoader::GetTextureForType(const std::string& type)
     return "";
 }
 
+bool dae::LevelLoader::IsPlateTopAt(float worldX, float groundY)
+{
+    constexpr float kTolerance = 0.5f;
+    for (const auto& rect : s_plateRects)
+    {
+        const float left = rect.x;
+        const float right = rect.x + rect.z;
+        if (worldX >= left && worldX < right && std::abs(rect.y - groundY) <= kTolerance)
+            return true;
+    }
+    return false;
+}
+
 void dae::LevelLoader::LoadLevelFromJson(const std::string& filename, Scene& scene, const glm::vec2& levelOffset)
 {
     s_groundRects.clear();
     s_ladderRects.clear();
+    s_plateRects.clear();
 
     std::ifstream file(filename);
     if (!file.is_open()) {
@@ -228,9 +244,15 @@ void dae::LevelLoader::LoadLevelFromJson(const std::string& filename, Scene& sce
 
             if (isIngredient)
             {
-                float currentX = baseX;
                 const float y = baseY + kIngredientYOffset;
 
+                auto ingredientRoot = std::make_unique<dae::GameObject>();
+                ingredientRoot->SetPosition(baseX, y);
+                auto* ingredient = ingredientRoot->AddComponent<dae::IngredientComponent>();
+                auto* ingredientRootPtr = ingredientRoot.get();
+                scene.Add(std::move(ingredientRoot));
+
+                float currentX = baseX;
                 for (int i = 0; i < 4; ++i)
                 {
                     const auto& frameTexture = ingredientTextures[i];
@@ -238,6 +260,7 @@ void dae::LevelLoader::LoadLevelFromJson(const std::string& filename, Scene& sce
 
                     auto go = std::make_unique<dae::GameObject>();
                     go->SetPosition(currentX, y);
+                    go->SetParent(ingredientRootPtr, true);
 
                     auto* render = go->AddComponent<dae::RenderComponent>();
                     render->SetTexture(frameTexture);
@@ -248,6 +271,9 @@ void dae::LevelLoader::LoadLevelFromJson(const std::string& filename, Scene& sce
                         glm::vec2{ 0.f, 0.f },
                         dae::CollisionLayer::Trigger,
                         true);
+
+                    const size_t pieceIndex = ingredient->RegisterPiece(go.get());
+                    go->AddComponent<dae::IngredientPieceComponent>(ingredient, pieceIndex);
 
                     scene.Add(std::move(go));
                     currentX += frameTexture->GetSize().x * kIngredientScale;
@@ -267,20 +293,25 @@ void dae::LevelLoader::LoadLevelFromJson(const std::string& filename, Scene& sce
 
                     if (IsGroundType(type))
                     {
-						float sizeY = 6.f;
+                        float sizeY = 6.f;
                         s_groundRects.emplace_back(baseX, baseY, render->GetScaledSize().x, sizeY);
-						collision->SetLayer(dae::CollisionLayer::Platform);
-						collision->SetSize({ render->GetScaledSize().x, sizeY });
-						collision->SetOffset({ 0.f, render->GetScaledSize().y - sizeY });
+                        collision->SetLayer(dae::CollisionLayer::Platform);
+                        collision->SetSize({ render->GetScaledSize().x, sizeY });
+                        collision->SetOffset({ 0.f, render->GetScaledSize().y - sizeY });
+
+                        if (type == "plate")
+                        {
+                            s_plateRects.emplace_back(baseX, baseY, render->GetScaledSize().x, sizeY);
+                        }
                     }
                     if (IsLadderType(type))
                     {
-						float sizeX = 50.f;
+                        float sizeX = 50.f;
                         s_ladderRects.emplace_back(baseX, baseY, sizeX, render->GetScaledSize().y);
                         collision->SetLayer(dae::CollisionLayer::Ladder);
                         collision->SetSize({ sizeX, render->GetScaledSize().y });
-						collision->SetOffset({ (render->GetScaledSize().x - sizeX) / 2.f, 0.f });
-						collision->SetTrigger(true);
+                        collision->SetOffset({ (render->GetScaledSize().x - sizeX) / 2.f, 0.f });
+                        collision->SetTrigger(true);
                     }
                 }
 

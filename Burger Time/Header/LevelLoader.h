@@ -18,6 +18,7 @@ namespace dae
         static glm::vec4 GetLevelBounds();
         static float GetHighestGroundYAt(float worldX);
         static float GetLowestGroundYAt(float worldX);
+        static bool IsPlateTopAt(float worldX, float groundY);
     private:
         static std::string GetTextureForType(const std::string& type);
     };
