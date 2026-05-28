@@ -1,6 +1,7 @@
 #pragma once
 #include <string>
 #include <glm/vec2.hpp>
+#include <glm/vec4.hpp>
 
 namespace dae
 {
@@ -13,6 +14,10 @@ namespace dae
 
         static float GetGroundYAt(float worldX, float currentY);
         static bool IsOnLadder(float worldX, float worldY);
+
+        static glm::vec4 GetLevelBounds();
+        static float GetHighestGroundYAt(float worldX);
+        static float GetLowestGroundYAt(float worldX);
     private:
         static std::string GetTextureForType(const std::string& type);
     };

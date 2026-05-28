@@ -9,6 +9,7 @@
 #include "HudObservers.h"
 #include "LevelLoader.h"
 #include "ResourceManager.h"
+#include "EnemyComponent.h"
 
 
 namespace
@@ -79,8 +80,8 @@ namespace
 		auto player1 = std::make_unique<dae::GameObject>();
 		player1->SetPosition(SCREEN_WIDTH / 2.f, SCREEN_HEIGHT - 160.f);
 		auto player1Actor = player1->AddComponent<dae::GameActor>();
-		player1Actor->SetTexture("Sprites/PeterPepper/peter.png");
-
+		//player1Actor->SetTexture("Sprites/PeterPepper/peter.png");
+		player1Actor->SetupAnimations("Sprites/PeterPepper/sprites.png", { 15.f, 15.f }, { 0.f, 0.f });
 		player1Actor->SetSpeed(100.f);
 		player1Actor->EnableGravity(true);
 		scene.Add(std::move(player1));
@@ -90,6 +91,43 @@ namespace
 
 		dae::SetInputMappingController(player1Actor, 0);
 		dae::SetInputMappingKeyboard(player1Actor);
+	}
+
+	void SpawnEnemies(dae::Scene& scene)
+	{
+		const auto bounds = dae::LevelLoader::GetLevelBounds();
+		if (bounds.z <= bounds.x || bounds.w <= bounds.y)
+			return;
+
+		const float leftX = bounds.x;
+		const float rightX = bounds.z;
+		const float topLeftY = dae::LevelLoader::GetHighestGroundYAt(leftX + 1.f);
+		const float topRightY = dae::LevelLoader::GetHighestGroundYAt(rightX - 1.f);
+		const float bottomLeftY = dae::LevelLoader::GetLowestGroundYAt(leftX + 1.f);
+		const float bottomRightY = dae::LevelLoader::GetLowestGroundYAt(rightX - 1.f);
+
+		auto spawnEnemyAt = [&](float x, float y, bool alignRight)
+			{
+				if (!std::isfinite(y))
+					return;
+
+				auto enemy = std::make_unique<dae::GameObject>();
+				enemy->SetPosition(x, y);
+
+				enemy->AddComponent<dae::EnemyComponent>();
+				auto* collision = enemy->GetComponent<dae::CollisionComponent>();
+				const auto size = collision->GetSize();
+
+				const float spawnX = alignRight ? (x - size.x) : x;
+				enemy->SetPosition(spawnX, y - size.y);
+
+				scene.Add(std::move(enemy));
+			};
+
+		spawnEnemyAt(leftX, topLeftY, false);
+		spawnEnemyAt(rightX, topRightY, true);
+		spawnEnemyAt(leftX, bottomLeftY, false);
+		spawnEnemyAt(rightX, bottomRightY, true);
 	}
 }
 
@@ -106,4 +144,5 @@ void dae::SingleplayerState::OnEnter()
 	HudRefs hudRefs{};
 	TextLoader(scene, mainFont, hudRefs);
 	PlayerLoader(scene, hudRefs);
+	SpawnEnemies(scene);
 }

@@ -47,8 +47,8 @@ set(ENGINE_SOURCES
   "${ENGINE_SRC_DIR}/CollisionSystem.cpp"
   "${ENGINE_SRC_DIR}/GameStateMachine.cpp"
   "${ENGINE_SRC_DIR}/GameStateManager.cpp"
+  "${ENGINE_SRC_DIR}/AnimationComponent.cpp"
 )
-
 set(GAME_SOURCES
   "${GAME_SRC_DIR}/Main.cpp"
   "${GAME_SRC_DIR}/GameActor.cpp"
@@ -60,6 +60,8 @@ set(GAME_SOURCES
   "${GAME_SRC_DIR}/VersusState.cpp"
   "${GAME_SRC_DIR}/HighScoreState.cpp"
   "${GAME_SRC_DIR}/HudObservers.cpp"
+  "${GAME_SRC_DIR}/EnemyComponent.cpp"
+  "${GAME_SRC_DIR}/PlayerState.cpp"
 )
 
 add_library(${ENGINE_TARGET} STATIC ${ENGINE_SOURCES})

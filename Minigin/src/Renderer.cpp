@@ -54,7 +54,7 @@ void dae::Renderer::Render() const
 	SceneManager::GetInstance().Render();
 	GameStateManager::GetInstance().Render();
 #if _DEBUG
-	//CollisionSystem::RenderDebug();
+	CollisionSystem::RenderDebug();
 #endif
 	ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), m_renderer);
 	SDL_RenderPresent(m_renderer);

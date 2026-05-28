@@ -58,6 +58,71 @@ namespace
     }
 }
 
+float dae::LevelLoader::GetHighestGroundYAt(float worldX)
+{
+    float bestY = std::numeric_limits<float>::infinity();
+
+    for (const auto& rect : s_groundRects)
+    {
+        const float left = rect.x;
+        const float right = rect.x + rect.z;
+
+        if (worldX >= left && worldX < right)
+        {
+            if (rect.y < bestY)
+            {
+                bestY = rect.y;
+            }
+        }
+    }
+
+    return bestY;
+}
+
+float dae::LevelLoader::GetLowestGroundYAt(float worldX)
+{
+    float bestY = -std::numeric_limits<float>::infinity();
+
+    for (const auto& rect : s_groundRects)
+    {
+        const float left = rect.x;
+        const float right = rect.x + rect.z;
+
+        if (worldX >= left && worldX < right)
+        {
+            if (rect.y > bestY)
+            {
+                bestY = rect.y;
+            }
+        }
+    }
+
+    return bestY;
+}
+
+glm::vec4 dae::LevelLoader::GetLevelBounds()
+{
+    float minX = std::numeric_limits<float>::infinity();
+    float minY = std::numeric_limits<float>::infinity();
+    float maxX = -std::numeric_limits<float>::infinity();
+    float maxY = -std::numeric_limits<float>::infinity();
+
+    for (const auto& rect : s_groundRects)
+    {
+        minX = min(minX, rect.x);
+        minY = min(minY, rect.y);
+        maxX = max(maxX, rect.x + rect.z);
+        maxY = max(maxY, rect.y + rect.w);
+    }
+
+    if (!std::isfinite(minX) || !std::isfinite(minY) || !std::isfinite(maxX) || !std::isfinite(maxY))
+    {
+        return { 0.f, 0.f, 0.f, 0.f };
+    }
+
+    return { minX, minY, maxX, maxY };
+}
+
 float dae::LevelLoader::GetGroundYAt(float worldX, float currentY)
 {
     float bestY = std::numeric_limits<float>::infinity();
