@@ -16,33 +16,29 @@ dae::GameActor::GameActor(GameObject* owner) :
 	m_renderComponent = owner->AddComponent<RenderComponent>();
 	m_renderComponent->SetScale(2.f);
 
-	m_collisionComponent = owner->AddComponent<CollisionComponent>();
+	m_collisionComponent = owner->AddComponent<CollisionComponent>(
+		glm::vec2{ 0.f, 0.f },
+		glm::vec2{ 0.f, 0.f },
+		CollisionLayer::Player);
+
 	m_movementComponent = owner->AddComponent<MovementComponent>();
+
+	m_spawnPosition = owner->GetWorldPosition();
 
 	ChangeState(std::make_unique<PlayerIdleState>());
 }
 
-void dae::GameActor::SetupAnimations(const std::string& spriteSheetPath, const glm::vec2& frameSize, const glm::vec2& originOffset)
-{
-	if (!m_animationComponent)
-	{
-		m_animationComponent = GetOwner()->AddComponent<AnimationComponent>();
-	}
-
-	m_animationComponent->SetSpriteSheet(spriteSheetPath, frameSize, kPeterColumns, originOffset);
-
-	// rows: idle(0,1), walk_left(1,3), walk_right(2,3), ladder(3,3)
-	m_animationComponent->AddClip("idle", 0, 1, 1.f, true);
-	m_animationComponent->AddClip("walk_left", 3, 3, 6.f, true);
-	m_animationComponent->AddClip("walk_right", 6, 3, 6.f, true);
-	m_animationComponent->AddClip("ladder", 9, 3, 6.f, true);
-	m_animationComponent->Play("idle");
-
-	m_collisionComponent->SetSize({ frameSize.x * 2.f, frameSize.y * 2.f });
-}
-
 void dae::GameActor::Update()
 {
+	if (m_collisionComponent)
+	{
+		const auto overlaps = m_collisionComponent->GetOverlapsByLayer(CollisionLayer::Enemy, false);
+		if (!overlaps.empty())
+		{
+			OnDeath();
+		}
+	}
+
 	if (m_state)
 	{
 		auto nextState = m_state->HandleInput(*this);
@@ -57,6 +53,46 @@ void dae::GameActor::Update()
 	m_hasMoveInput = false;
 	m_hasShootInput = false;
 	m_lastMoveDir = { 0.f, 0.f };
+}
+
+void dae::GameActor::OnDeath()
+{
+	if (m_lives <= 0)
+		return;
+
+	m_lives -= 1;
+	Notify("PlayerDied", GetOwner());
+	Respawn();
+}
+
+void dae::GameActor::Respawn()
+{
+	GetOwner()->SetPosition(m_spawnPosition.x, m_spawnPosition.y);
+
+	if (m_movementComponent)
+	{
+		m_movementComponent->Stop();
+	}
+
+	ChangeState(std::make_unique<PlayerIdleState>());
+}
+
+void dae::GameActor::SetupAnimations(const std::string& spriteSheetPath, const glm::vec2& frameSize, const glm::vec2& originOffset)
+{
+	if (!m_animationComponent)
+	{
+		m_animationComponent = GetOwner()->AddComponent<AnimationComponent>();
+	}
+
+	m_animationComponent->SetSpriteSheet(spriteSheetPath, frameSize, kPeterColumns, originOffset);
+
+	m_animationComponent->AddClip("idle", 0, 1, 1.f, true);
+	m_animationComponent->AddClip("walk_left", 3, 3, 6.f, true);
+	m_animationComponent->AddClip("walk_right", 6, 3, 6.f, true);
+	m_animationComponent->AddClip("ladder", 9, 3, 6.f, true);
+	m_animationComponent->Play("idle");
+
+	m_collisionComponent->SetSize({ frameSize.x * 2.f, frameSize.y * 2.f });
 }
 
 void dae::GameActor::ChangeState(std::unique_ptr<PlayerState> state)
@@ -101,15 +137,6 @@ bool dae::GameActor::IsOnLadder() const
 void dae::GameActor::Shoot()
 {
 	m_hasShootInput = true;
-}
-
-void dae::GameActor::OnDeath()
-{
-	if (m_lives <= 0)
-		return;
-
-	m_lives -= 1;
-	Notify("PlayerDied", GetOwner());
 }
 
 void dae::GameActor::AddScore(int points)

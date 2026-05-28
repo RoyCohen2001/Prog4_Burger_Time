@@ -56,6 +56,8 @@ namespace dae
 		bool HasShootInput() const { return m_hasShootInput; }
 
 	private:
+		void Respawn();
+
 		RenderComponent* m_renderComponent{};
 		MovementComponent* m_movementComponent{};
 		CollisionComponent* m_collisionComponent{};
@@ -66,6 +68,8 @@ namespace dae
 		glm::vec2 m_lastMoveDir{ 0.f, 0.f };
 		bool m_hasMoveInput{ false };
 		bool m_hasShootInput{ false };
+
+		glm::vec3 m_spawnPosition{ 0.f, 0.f, 0.f };
 
 		int m_lives{};
 		int m_score{};
